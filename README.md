@@ -2,6 +2,25 @@
 
 交互式选择源分支、提交版本和多个目标分支，统一合并、汇总后提交。
 
+## Release Notes
+
+### 1.0.1
+
+- 默认配置改为 `~/.svnmbm/config.jsonc`，不再读取当前工作目录的配置。
+- 缺少配置时直接报错，显示完整路径、创建提示和 JSONC 示例，不再自动生成配置。
+- `local_path` 的相对路径以配置文件所在目录为基准，从任意目录启动均保持一致。
+- 新增 GitHub Release 触发的 npm 自动发布流程，使用 Trusted Publishing（OIDC）。
+
+升级提示：将原来的 `config.jsonc` 移到 `~/.svnmbm/config.jsonc`。如果使用相对副本路径，请按新位置调整，或改用绝对路径。Windows 对应 `%USERPROFILE%\.svnmbm\config.jsonc`。
+
+### 1.0.0
+
+- 首次发布 `@alanwalk/svn-multi-branch-merge`，命令入口为 `svnmbm`。
+- 支持交互选择、指定 revision 和全合并，以及多分支并行检查、清理、合并和提交。
+- 支持各目标独立的 YAML ignore 规则、`ignore-on-commit` 保护和异常统一确认。
+
+## 安装与配置
+
 命令行入口为 `svnmbm`。安装发布包并配置 `~/.svnmbm/config.jsonc` 后，可在任意目录运行：
 
 默认只读取用户主目录的 `~/.svnmbm/config.jsonc`（Windows 为 `%USERPROFILE%\.svnmbm\config.jsonc`），不读取当前目录配置。文件不存在时会报错退出，显示完整路径和 JSONC 格式示例，不自动创建。可将仓库的 `config.example.jsonc` 复制到该位置，再填写 SVN 副本路径和分支关系。`local_path` 推荐使用绝对路径；相对路径以配置文件所在目录为基准。
