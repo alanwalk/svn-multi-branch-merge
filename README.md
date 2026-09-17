@@ -145,6 +145,14 @@ npm run dev -- --skip-summary-confirm
 
 提交仅包含汇总中计划内、且不属于 `ignore-on-commit` 的变更路径，使用显式路径列表及非递归提交，避免目录递归带入被排除的文件。确认期间发现额外本地修改时停止该分支提交。
 
+## npm 自动发布
+
+工作流 `.github/workflows/npm-publish.yml` 在 GitHub Release 发布后运行：安装 SVN、构建、测试、检查打包内容，通过后使用 npm Trusted Publishing（OIDC）发布，不保存 npm token。正式 Release 发布到 `latest`，预发布到 `next`。手动运行工作流只验证，不发布。
+
+npm 包的 Trusted Publisher 应配置为 GitHub 用户 `alanwalk`、仓库 `svn-multi-branch-merge`、工作流文件 `npm-publish.yml`，不设置 Environment。
+
+发布新版本时先更新 `package.json` 和锁文件版本，提交并推送，再为该提交创建并发布同版本的 `vX.Y.Z` Release。标签必须与包版本一致；已发布的 npm 版本不能重复发布。
+
 ## 验证
 
 ```powershell
