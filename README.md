@@ -7,7 +7,7 @@
 仓库提供 `config.example.jsonc`，复制为 `config.jsonc` 后填写自己的 SVN 副本路径和分支关系。实际配置已加入 Git 忽略列表；首次运行缺少配置时，会生成使用 `trunk` / `release` 的通用配置，请先调整路径。
 
 ```powershell
-npm install -g svn-multi-branch-merge
+npm install -g @alanwalk/svn-multi-branch-merge
 svnmbm
 svnmbm cn-dev
 svnmbm cn-preview "99644,99650-99655"
