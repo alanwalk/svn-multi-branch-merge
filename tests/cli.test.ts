@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -22,6 +22,25 @@ test('quick arguments default to full merge and preserve revision and option par
   for (const args of [['missing'], ['leaf'], ['source', ''], ['source', '3-1'], ['source', '1', '2'], ['source', '--bad'], ['--concurrency', 'source']]) {
     assert.throws(() => parseArguments(args, config), args.join(' '));
   }
+});
+
+test('help and version work without config or SVN and do not create files', () => {
+  const root = mkdtempSync(join(tmpdir(), 'svnmbm-info-'));
+  const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
+  try {
+    for (const flag of ['-h', '--help', '-v', '-V', '--version']) {
+      const result = spawnSync(process.execPath, ['--import', pathToFileURL(resolve('node_modules/tsx/dist/loader.mjs')).href, resolve('src/main.ts'), flag], {
+        cwd: root, env: { ...process.env, HOME: root, USERPROFILE: root, PATH: '' }, encoding: 'utf8', timeout: 15000,
+      });
+      assert.equal(result.status, 0, result.stderr);
+      if (flag === '-h' || flag === '--help') {
+        assert.match(result.stdout, /--concurrency/);
+        assert.match(result.stdout, /~\/.svnmbm\/config.jsonc/);
+        assert.match(result.stdout, /--skip-summary-confirm/);
+      } else assert.equal(result.stdout.trim(), version);
+    }
+    assert.deepEqual(readdirSync(root), []);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 test('quick CLI automatically commits direct children in full and explicit revision modes', { timeout: 120000 }, () => {

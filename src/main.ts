@@ -6,7 +6,7 @@ import { downstreamChoices, selectTargetBranches } from './branch-select.js';
 import { svnGetUrl, svnGetSourceName, svnFetchLog, svnLogsForRevisions, svnEligibleRevisions, svnCapture, svnMergedRevisions, parseLog } from './svn.js';
 import type { LogEntry } from './types.js';
 import { parseRevisionInput } from './revisions.js';
-import { parseArguments } from './cli.js';
+import { informationalOutput, parseArguments } from './cli.js';
 import { mergeBranches, checkWorkspaces, validateMergeTargets, formatMergeSummary, formatCommitMessage, commitAfterSummary } from './merger.js';
 import { createBranchProgress, withBranchProgress } from './progress.js';
 import { mapConcurrent } from './concurrency.js';
@@ -26,6 +26,8 @@ function svnLine(line: string) {
 }
 
 async function main() {
+  const info = informationalOutput(process.argv.slice(2));
+  if (info !== undefined) { console.log(info); return; }
   const config = loadConfig();
   const branchNames = Object.keys(config.branches).filter(branch => (config.tree[branch]?.length ?? 0) > 0);
   const options = parseArguments(process.argv.slice(2), config);

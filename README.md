@@ -4,6 +4,12 @@
 
 ## Release Notes
 
+### 1.0.2
+
+- 新增 `-h` / `--help`，显示用法、revision 格式、配置位置和现有选项。
+- 新增 `-v` / `-V` / `--version`，直接读取工具自身 `package.json` 中的版本。
+- 帮助和版本查询无需配置文件或 SVN 副本，不创建文件或执行合并。
+
 ### 1.0.1
 
 - 默认配置改为 `~/.svnmbm/config.jsonc`，不再读取当前工作目录的配置。
@@ -20,6 +26,8 @@
 - 支持各目标独立的 YAML ignore 规则、`ignore-on-commit` 保护和异常统一确认。
 
 ## 安装与配置
+
+常用参数：`svnmbm -h` / `--help` 查看完整用法，`svnmbm -v` / `-V` / `--version` 查看安装版本。这些参数不需要配置文件或 SVN 副本，也不会执行合并。
 
 命令行入口为 `svnmbm`。安装发布包并配置 `~/.svnmbm/config.jsonc` 后，可在任意目录运行：
 
