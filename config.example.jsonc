@@ -1,5 +1,5 @@
 {
-  // Copy to config.jsonc and set the paths of your SVN working copies.
+  // Copy to ~/.svnmbm/config.jsonc and set the paths of your SVN working copies.
   "branches": {
     "trunk": { "local_path": "./working-copies/trunk", "enabled": true },
     "release": { "local_path": "./working-copies/release", "enabled": true }

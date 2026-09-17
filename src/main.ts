@@ -12,8 +12,6 @@ import { createBranchProgress, withBranchProgress } from './progress.js';
 import { mapConcurrent } from './concurrency.js';
 import { cleanWorkspaces } from './workspace.js';
 
-const config      = loadConfig();
-const branchNames = Object.keys(config.branches).filter(branch => (config.tree[branch]?.length ?? 0) > 0);
 
 function hr() { console.log(chalk.gray('─'.repeat(64))); }
 
@@ -28,6 +26,8 @@ function svnLine(line: string) {
 }
 
 async function main() {
+  const config = loadConfig();
+  const branchNames = Object.keys(config.branches).filter(branch => (config.tree[branch]?.length ?? 0) > 0);
   const options = parseArguments(process.argv.slice(2), config);
   const { concurrency } = options;
   console.log(chalk.bold.cyan('\n╔══════════════════════════════╗'));
@@ -219,6 +219,6 @@ async function main() {
 
 main().catch(e => {
   if (e?.name === 'ExitPromptError') { console.log('\n已退出'); process.exit(0); }
-  console.error(chalk.red('\n[未预期错误]'), e);
+  console.error(chalk.red('\n[错误]'), e instanceof Error ? e.message : e);
   process.exit(1);
 });

@@ -27,7 +27,7 @@ test('quick arguments default to full merge and preserve revision and option par
 test('quick CLI automatically commits direct children in full and explicit revision modes', { timeout: 120000 }, () => {
   const root = mkdtempSync(join(tmpdir(), 'svn-quick-test-'));
   const run = (command: string, args: string[], cwd = root) => {
-    const result = spawnSync(command, args, { cwd, encoding: 'utf8', timeout: 30000 });
+    const result = spawnSync(command, args, { cwd, env: { ...process.env, HOME: root, USERPROFILE: root }, encoding: 'utf8', timeout: 30000 });
     assert.equal(result.status, 0, `${command}: ${result.stdout}\n${result.stderr}`);
     return result.stdout;
   };
@@ -48,7 +48,8 @@ test('quick CLI automatically commits direct children in full and explicit revis
       svn('checkout', `${url}/${branch}`, path);
       branches[branch] = { local_path: path, enabled: true };
     }
-    writeFileSync(join(root, 'config.jsonc'), JSON.stringify({ branches, tree: { source: ['child'], child: ['leaf'] } }));
+    mkdirSync(join(root, '.svnmbm'));
+    writeFileSync(join(root, '.svnmbm/config.jsonc'), JSON.stringify({ branches, tree: { source: ['child'], child: ['leaf'] } }));
     const launch = (...args: string[]) => run(process.execPath, ['--import', pathToFileURL(resolve('node_modules/tsx/dist/loader.mjs')).href, resolve('src/main.ts'), 'source', ...args]);
     for (const [index, mode] of ['all', 'explicit'].entries()) {
       writeFileSync(join(root, 'source', 'file.txt'), `change ${index}\n`);
@@ -66,7 +67,7 @@ test('quick CLI automatically commits direct children in full and explicit revis
     const launchBlocked = () => spawnSync(process.execPath, [
       '--import', pathToFileURL(resolve('node_modules/tsx/dist/loader.mjs')).href,
       resolve('src/main.ts'), 'source', '--skip-summary-confirm',
-    ], { cwd: root, encoding: 'utf8', timeout: 30000 });
+    ], { cwd: root, env: { ...process.env, HOME: root, USERPROFILE: root }, encoding: 'utf8', timeout: 30000 });
     writeFileSync(join(root, 'child', 'file.txt'), 'local change\n');
     const dirty = launchBlocked();
     assert.equal(dirty.status, 1);

@@ -2,9 +2,9 @@
 
 交互式选择源分支、提交版本和多个目标分支，统一合并、汇总后提交。
 
-命令行入口为 `svnmbm`。安装发布包后，在包含 `config.jsonc` 的目录运行：
+命令行入口为 `svnmbm`。安装发布包并配置 `~/.svnmbm/config.jsonc` 后，可在任意目录运行：
 
-仓库提供 `config.example.jsonc`，复制为 `config.jsonc` 后填写自己的 SVN 副本路径和分支关系。实际配置已加入 Git 忽略列表；首次运行缺少配置时，会生成使用 `trunk` / `release` 的通用配置，请先调整路径。
+默认只读取用户主目录的 `~/.svnmbm/config.jsonc`（Windows 为 `%USERPROFILE%\.svnmbm\config.jsonc`），不读取当前目录配置。文件不存在时会报错退出，显示完整路径和 JSONC 格式示例，不自动创建。可将仓库的 `config.example.jsonc` 复制到该位置，再填写 SVN 副本路径和分支关系。`local_path` 推荐使用绝对路径；相对路径以配置文件所在目录为基准。
 
 ```powershell
 npm install -g @alanwalk/svn-multi-branch-merge
@@ -33,7 +33,7 @@ npm run build
 node dist/main.js
 ```
 
-分支路径、启用状态和树形关系在 `config.jsonc` 中配置，支持 `//` 行注释、`/* ... */` 块注释和尾随逗号。读取配置不会重写或移除注释；语法错误会提示行列位置。提交信息自动生成，不询问或读取提交信息模板：
+分支路径、启用状态和树形关系在 `~/.svnmbm/config.jsonc` 中配置，支持 `//` 行注释、`/* ... */` 块注释和尾随逗号。读取配置不会重写或移除注释；语法错误会提示行列位置。提交信息自动生成，不询问或读取提交信息模板：
 
 ```text
 Merged revision(s) 96908, 96911 from trunk:

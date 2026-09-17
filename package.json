@@ -1,6 +1,6 @@
 {
   "name": "@alanwalk/svn-multi-branch-merge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

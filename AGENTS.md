@@ -16,12 +16,12 @@ This repository provides an interactive Node.js CLI for merging SVN revisions in
 - `src/encoding.ts`: UTF-8/GBK decoding and stream line buffering.
 - `src/config.ts`: JSONC configuration loading, saving, and defaults.
 - `src/types.ts`: shared configuration and log-entry interfaces.
-- `config.jsonc`: branch paths, enabled flags, and branch hierarchy; comments and trailing commas are supported. Commit messages use `Merged revision(s) ... from ...:` followed by full original revision messages separated by `........`.
+- `~/.svnmbm/config.jsonc`: required user configuration; missing files produce an example and are never auto-created. Contains branch paths, enabled flags, and branch hierarchy; comments and trailing commas are supported. Commit messages use `Merged revision(s) ... from ...:` followed by full original revision messages separated by `........`.
 - `dist/`: generated JavaScript output; `tests/`: regression tests. No dedicated asset directory exists.
 
 ## Build, Test, and Development Commands
 
-Run commands from the repository root; configuration resolves relative to the current directory. Install Node.js/npm and make `svn` available on `PATH`.
+Run commands from the repository root; configuration is required at `~/.svnmbm/config.jsonc`; relative working-copy paths resolve against its directory. Install Node.js/npm and make `svn` available on `PATH`.
 
 - `npm ci`: install dependencies from `package-lock.json`.
 - `npm start`: launch the TypeScript CLI through `tsx`.
