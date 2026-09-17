@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.exe
+*.png
+
+# Local workspace configuration and package artifacts
+config.jsonc
+working-copies/
+*.tgz

@@ -1,0 +1,11 @@
+{
+  // Copy to config.jsonc and set the paths of your SVN working copies.
+  "branches": {
+    "trunk": { "local_path": "./working-copies/trunk", "enabled": true },
+    "release": { "local_path": "./working-copies/release", "enabled": true }
+  },
+  // Targets are the source branch's direct children.
+  "tree": {
+    "trunk": ["release"]
+  }
+}
