@@ -15,8 +15,9 @@ export function informationalOutput(args: string[]): string | undefined {
 选项:
   -h, --help                 显示帮助并退出
   -v, -V, --version          显示版本并退出
+  -C                        全部合并正常时自动提交（默认需确认）
   --concurrency <数量>       并行数，默认 6（也支持 --concurrency=6）
-  --skip-summary-confirm     跳过正常合并的汇总确认；失败或冲突仍须人工确认
+  --skip-summary-confirm     -C 的兼容别名；失败或冲突仍须人工确认
 
 revision:
   不传则全合并；支持逗号列表和包含首尾的区间，如 "12312 , 12314-12319"。
@@ -26,12 +27,13 @@ revision:
   ~/.svnmbm/config.jsonc（Windows: %USERPROFILE%\\.svnmbm\\config.jsonc）
   相对副本路径以配置文件所在目录为基准。缺少配置会报错并显示格式示例。
 
-快速模式全部正常时自动提交；任一目标异常则整批暂停确认。
+默认合并后等待提交确认；加 -C 且全部正常时自动提交。异常始终须确认。
 工作副本不干净时需人工处理，输入 c 才会执行清理。
 
 示例:
   svnmbm trunk
-  svnmbm trunk "1001,1003-1005" --concurrency 3`;
+  svnmbm trunk "1001,1003-1005" --concurrency 3
+  svnmbm trunk -C`;
   }
   if (args.some(arg => ['-v', '-V', '--version'].includes(arg))) {
     return JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
@@ -44,7 +46,7 @@ export function parseArguments(args: string[], config: Config) {
   let skipConfirmation = false;
   for (let index = 0; index < args.length; index++) {
     const arg = args[index];
-    if (arg === '--skip-summary-confirm') skipConfirmation = true;
+    if (arg === '-C' || arg === '--skip-summary-confirm') skipConfirmation = true;
     else if (arg === '--concurrency') {
       if (!/^\d+$/.test(args[++index] ?? '')) throw new Error('--concurrency 必须是正整数');
     } else if (arg.startsWith('--concurrency=')) {

@@ -195,9 +195,9 @@ async function main() {
   }
   console.log(formatMergeSummary(source, revDisplay, results));
   const proceeded = await commitAfterSummary(
-    results, '', options.quick || options.skipConfirmation,
+    results, '', options.skipConfirmation,
     () => {
-      if (options.quick && !process.stdin.isTTY) throw new Error('合并存在异常，需要人工确认；所有尚未提交的变更已保留');
+      if (options.quick && !process.stdin.isTTY) throw new Error('提交需要人工确认；请在交互终端运行，或使用 -C 在全部正常时自动提交。所有尚未提交的变更已保留');
       return confirm({ message: '确认以上合并汇总，继续提交可提交的分支？', default: false });
     },
     svnLine, {}, concurrency,

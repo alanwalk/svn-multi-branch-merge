@@ -19,6 +19,10 @@ test('quick arguments default to full merge and preserve revision and option par
   assert.deepEqual(parseArguments(['source'], config), { source: 'source', revisions: undefined, quick: true, concurrency: 6, skipConfirmation: false });
   assert.deepEqual(parseArguments(['--concurrency', '2', 'source', ' 12 , 14-16 '], config).revisions, ['12', '14', '15', '16']);
   assert.equal(parseArguments(['source', '--concurrency=3'], config).concurrency, 3);
+  assert.equal(parseArguments(['source', '8888'], config).skipConfirmation, false);
+  for (const args of [['source', '-C'], ['-C', 'source', '8888'], ['source', '8888', '-C'], ['-C']]) {
+    assert.equal(parseArguments(args, config).skipConfirmation, true);
+  }
   for (const args of [['missing'], ['leaf'], ['source', ''], ['source', '3-1'], ['source', '1', '2'], ['source', '--bad'], ['--concurrency', 'source']]) {
     assert.throws(() => parseArguments(args, config), args.join(' '));
   }
@@ -43,7 +47,7 @@ test('help and version work without config or SVN and do not create files', () =
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
-test('quick CLI automatically commits direct children in full and explicit revision modes', { timeout: 120000 }, () => {
+test('quick CLI requires confirmation by default and auto-commits only with -C in full and explicit modes', { timeout: 120000 }, () => {
   const root = mkdtempSync(join(tmpdir(), 'svn-quick-test-'));
   const run = (command: string, args: string[], cwd = root) => {
     const result = spawnSync(command, args, { cwd, env: { ...process.env, HOME: root, USERPROFILE: root }, encoding: 'utf8', timeout: 30000 });
@@ -74,7 +78,17 @@ test('quick CLI automatically commits direct children in full and explicit revis
       writeFileSync(join(root, 'source', 'file.txt'), `change ${index}\n`);
       svn('commit', join(root, 'source'), '-m', `change ${index}`);
       const revision = run('svnlook', ['youngest', repo]).trim();
-      const output = mode === 'all' ? launch() : launch(revision);
+      const beforeMerge = run('svnlook', ['youngest', repo]);
+      const waiting = spawnSync(process.execPath, [
+        '--import', pathToFileURL(resolve('node_modules/tsx/dist/loader.mjs')).href,
+        resolve('src/main.ts'), 'source', ...(mode === 'all' ? [] : [revision]),
+      ], { cwd: root, env: { ...process.env, HOME: root, USERPROFILE: root }, encoding: 'utf8', timeout: 30000 });
+      assert.equal(waiting.status, 1);
+      assert.match(waiting.stderr, /提交需要人工确认/);
+      assert.equal(run('svnlook', ['youngest', repo]), beforeMerge, 'no server commit without -C');
+      assert.equal(readFileSync(join(root, 'child/file.txt'), 'utf8'), `change ${index}\n`, 'merge remains locally for review');
+      svn('revert', '-R', join(root, 'child'));
+      const output = mode === 'all' ? launch('-C') : launch(revision, '-C');
       assert.match(output, /提交成功/);
       assert.doesNotMatch(output, /确认执行？|确认以上合并汇总/);
       assert.equal(svn('cat', `${url}/child/file.txt`).trim(), `change ${index}`);
@@ -85,7 +99,7 @@ test('quick CLI automatically commits direct children in full and explicit revis
     assert.equal(run('svnlook', ['youngest', repo]).trim(), before);
     const launchBlocked = () => spawnSync(process.execPath, [
       '--import', pathToFileURL(resolve('node_modules/tsx/dist/loader.mjs')).href,
-      resolve('src/main.ts'), 'source', '--skip-summary-confirm',
+      resolve('src/main.ts'), 'source', '-C',
     ], { cwd: root, env: { ...process.env, HOME: root, USERPROFILE: root }, encoding: 'utf8', timeout: 30000 });
     writeFileSync(join(root, 'child', 'file.txt'), 'local change\n');
     const dirty = launchBlocked();
@@ -98,7 +112,7 @@ test('quick CLI automatically commits direct children in full and explicit revis
     const beforeConflict = run('svnlook', ['youngest', repo]).trim();
     const conflict = launchBlocked();
     assert.equal(conflict.status, 1);
-    assert.match(conflict.stderr, /合并存在异常，需要人工确认/);
+    assert.match(conflict.stderr, /提交需要人工确认/);
     assert.equal(run('svnlook', ['youngest', repo]).trim(), beforeConflict);
   } finally {
     rmSync(root, { recursive: true, force: true });
